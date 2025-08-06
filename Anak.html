@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pesan dari Mama</title>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Quicksand', sans-serif;
+        background: url('https://i.postimg.cc/qMWjPNGy/IMG-20250806-105244.jpg') no-repeat center bottom fixed;
+        background-size: cover; /* Tetap penuh layar */
+        overflow: hidden;
+    }
+    .page {
+        display: none;
+        text-align: center;
+        color: white;
+        height: 100vh;
+        width: 100vw;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        position: relative;
+        z-index: 1;
+    }
+    .active {
+        display: flex;
+    }
+    .content {
+        background: rgba(0,0,204, 0.5);
+        padding: 25px;
+        border: 3px solid cyan;
+        border-radius: 15px;
+        max-width: 85%;
+        animation: fadeIn 1s ease-in-out;
+        box-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
+        position: relative;
+        z-index: 2;
+    }
+    p {
+        font-weight: 700;
+        font-size: 20px;
+        text-shadow: 2px 2px 5px black;
+        min-height: 30px;
+    }
+    .btn {
+        margin: 10px;
+        padding: 10px 25px;
+        border: none;
+        background: cyan;
+        color: black;
+        cursor: pointer;
+        font-weight: bold;
+        border-radius: 8px;
+        transition: 0.3s;
+        font-size: 18px;
+        z-index: 3;
+        position: relative;
+    }
+    .btn:hover {
+        background: hotpink;
+        color: white;
+        transform: scale(1.05);
+    }
+    .image {
+        max-width: 220px;
+        margin: 15px auto;
+        display: block;
+    }
+    @keyframes fadeIn {
+        from {opacity: 0;}
+        to {opacity: 1;}
+    }
+
+    /* Animasi hujan love neon */
+    .love {
+        position: fixed;
+        top: 15px;
+        color: #ff00ff;
+        font-size: 24px;
+        animation: fall linear infinite;
+        text-shadow: 0 0 8px #ff00ff;
+        pointer-events: none;
+        z-index: 5;
+    }
+    @keyframes fall {
+        0% {transform: translateY(-10%);}
+        100% {transform: translateY(110vh);}
+    }
+
+    /* Animasi balon naik tertiup angin */
+    .balloon {
+        position: fixed;
+        top: 50px;
+        font-size: 40px;
+        opacity: 0.9;
+        pointer-events: none;
+        z-index: 6;
+        text-shadow: 0 0 10px rgba(255,255,255,0.7);
+    }
+
+    /* Tombol kontrol musik */
+    #musicControl {
+        position: fixed;
+        top: 15px;
+        right: 15px;
+        background: rgba(0,0,0,0.7);
+        color: white;
+        border: 2px solid cyan;
+        border-radius: 50%;
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+        cursor: pointer;
+        display: none;
+        z-index: 999;
+    }
+</style>
+</head>
+<body>
+
+<!-- Musik -->
+<audio id="bgMusic" autoplay muted loop>
+  <source src="https://raw.githubusercontent.com/Juststranger-94/Musik/main/AhaTik_suara%20asli%20-%20LIRIK%20MUSIK%20BAPERAN_1754442496624.mp3" type="audio/mp3">
+</audio>
+<button id="musicControl" onclick="toggleMusic()">🔊</button>
+
+<!-- Halaman 1: Login -->
+<div class="page active" id="page1">
+    <div class="content">
+        <h2>Login</h2>
+        <img class="image" src="https://i.postimg.cc/T3fMzN0r/wallpaper-kucing-animasi-23.gif" alt="Gambar Login">
+        <input type="text" id="username" placeholder="Username"><br><br>
+        <input type="password" id="password" placeholder="Password"><br><br>
+        <button class="btn" onclick="login()">Masuk</button>
+    </div>
+</div>
+
+<!-- Halaman 2 -->
+<div class="page" id="page2">
+    <div class="content">
+        <img class="image" src="https://i.postimg.cc/L8dCDjKQ/fc5285f0-4751-4ac5-beab-bbb623cb36e7.jpg" alt="Gambar Halaman 2">
+        <p id="text2a"></p>
+        <p id="text2b"></p>
+        <button class="btn" onclick="nextPage(3)">Lanjut</button>
+        <button class="btn" onclick="confirmNo()">Tidak</button>
+    </div>
+</div>
+
+<!-- Halaman 3 -->
+<div class="page" id="page3">
+    <div class="content">
+        <img class="image" src="https://i.postimg.cc/qB1kxTx9/661a2760-c89f-40d2-863e-94581474b00e.jpg" alt="Gambar Halaman 3">
+        <p id="text3"></p>
+        <button class="btn" onclick="nextPage(4)">Lanjut</button>
+    </div>
+</div>
+
+<!-- Halaman 4 -->
+<div class="page" id="page4">
+    <div class="content">
+        <img class="image" src="https://i.postimg.cc/0NGvMRNX/7fe1f9f1-d060-436b-9293-8c97a6fcc9a1.jpg" alt="Gambar Halaman 4">
+        <p id="text4a"></p>
+        <p id="text4b"></p>
+    </div>
+</div>
+
+<script>
+let currentPage = 1;
+const music = document.getElementById("bgMusic");
+const musicControl = document.getElementById("musicControl");
+let loveInterval, balloonInterval;
+
+// Efek mengetik
+function typeText(elementId, text, speed=50) {
+    let i = 0;
+    const element = document.getElementById(elementId);
+    element.innerHTML = "";
+    const typing = setInterval(() => {
+        element.innerHTML += text.charAt(i);
+        i++;
+        if (i >= text.length) clearInterval(typing);
+    }, speed);
+}
+
+function login() {
+    const user = document.getElementById("username").value;
+    const pass = document.getElementById("password").value;
+    if(user === "stranger" && pass === "1234") {
+        nextPage(2);
+        music.muted = false;
+        music.play();
+        musicControl.style.display = "block";
+    } else {
+        alert("Username atau password salah!");
+    }
+}
+
+function toggleMusic() {
+    if (music.paused) {
+        music.play();
+        musicControl.innerHTML = "🔊";
+    } else {
+        music.pause();
+        musicControl.innerHTML = "🔇";
+    }
+}
+
+function confirmNo() {
+    if(confirm("Yakin gak mau lanjut?")) {
+        if(confirm("Gak bole nolak lho")) {
+            // tetap di halaman 2
+        } else {
+            nextPage(3);
+        }
+    }
+}
+
+function nextPage(num) {
+    document.getElementById("page" + currentPage).classList.remove("active");
+    document.getElementById("page" + num).classList.add("active");
+    currentPage = num;
+
+    if(num === 2) {
+        typeText("text2a", "Entah kapan dan dimana kau membuka ini", 50);
+        setTimeout(() => typeText("text2b", "Saat kau membaca ini, ibu ingin mengatakan sesuatu", 50), 2000);
+        startAnimations();
+    } 
+    else if(num === 3) {
+        typeText("text3", "Makasih ya nak? Mama sayang kamu, maaf kalau terlalu mengkhawatirkan mu", 50);
+    } 
+    else if(num === 4) {
+        typeText("text4a", "Jadilah orang yang hebat", 50);
+        setTimeout(() => typeText("text4b", "I love you ❤️", 50), 2000);
+    }
+}
+
+// Animasi hujan love dan balon tiup angin
+function startAnimations() {
+    // Hujan love
+    loveInterval = setInterval(() => {
+        const love = document.createElement('div');
+        love.classList.add('love');
+        love.innerHTML = 'love';
+        love.style.left = Math.random() * 100 + 'vw';
+        love.style.animationDuration = (Math.random() * 5 + 2) + 's';
+        document.body.appendChild(love);
+        setTimeout(() => love.remove(), 3500);
+    }, 200);
+  
+    // Balon naik tertiup angin
+    const balloonColors = ['❤️','💙','💛','💜','💚','🧡'];
+    balloonInterval = setInterval(() => {
+        const balloon = document.createElement('div');
+        balloon.classList.add('balloon');
+        balloon.innerHTML = balloonColors[Math.floor(Math.random() * balloonColors.length)];
+        balloon.style.left = Math.random() * window.innerWidth + 'px';
+
+        let posY = window.innerHeight;
+        let posX = parseInt(balloon.style.left);
+        document.body.appendChild(balloon);
+
+        const speed = Math.random() * 1.5 + 0.5;
+        const wind = Math.random() * 2 - 1;
+
+        const move = setInterval(() => {
+            posY -= speed;
+            posX += wind;
+            balloon.style.transform = `translate(${posX}px, ${posY}px)`;
+            if (posY < -50) {
+                clearInterval(move);
+                balloon.remove();
+            }
+        }, 20);
+    }, 700);
+}
+</script>
+</body>
+</html>
